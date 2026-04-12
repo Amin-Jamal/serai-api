@@ -1,0 +1,6 @@
+@Serai.AuthApi_HostAddress = http://localhost:5120
+
+GET {{Serai.AuthApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
