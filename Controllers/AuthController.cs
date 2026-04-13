@@ -27,11 +27,7 @@ public sealed class AuthController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new
-            {
-                success = false,
-                message = ex.Message
-            });
+            return BadRequest(new { success = false, message = ex.Message });
         }
     }
 
@@ -51,11 +47,7 @@ public sealed class AuthController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new
-            {
-                success = false,
-                message = ex.Message
-            });
+            return BadRequest(new { success = false, message = ex.Message });
         }
     }
 }

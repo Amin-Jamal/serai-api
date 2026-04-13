@@ -19,5 +19,7 @@ public sealed class UserDto
 
     public string PhoneNumber { get; set; } = default!;
 
+    public string? FullName { get; set; }
+
     public bool IsPhoneVerified { get; set; }
 }

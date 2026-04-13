@@ -1,0 +1,98 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Serai.AuthApi.Data;
+using Serai.AuthApi.Dtos.Users;
+
+namespace Serai.AuthApi.Controllers;
+
+[ApiController]
+[Route("api/v1/users")]
+[Authorize]
+public sealed class UsersController : ControllerBase
+{
+    private readonly AppDbContext _dbContext;
+
+    public UsersController(AppDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    [HttpGet("me")]
+    public async Task<ActionResult<CurrentUserResponse>> GetMe(CancellationToken cancellationToken)
+    {
+        var userId = GetCurrentUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var user = await _dbContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == userId.Value, cancellationToken);
+
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new CurrentUserResponse
+        {
+            Id = user.Id,
+            PhoneNumber = user.PhoneNumber,
+            FullName = user.FullName,
+            IsPhoneVerified = user.IsPhoneVerified
+        });
+    }
+
+    [HttpPut("me")]
+    public async Task<ActionResult<CurrentUserResponse>> UpdateMe(
+        [FromBody] UpdateProfileRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetCurrentUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(x => x.Id == userId.Value, cancellationToken);
+
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        user.FullName = request.FullName.Trim();
+        user.UpdatedAtUtc = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return Ok(new CurrentUserResponse
+        {
+            Id = user.Id,
+            PhoneNumber = user.PhoneNumber,
+            FullName = user.FullName,
+            IsPhoneVerified = user.IsPhoneVerified
+        });
+    }
+
+    private long? GetCurrentUserId()
+    {
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userIdValue))
+        {
+            return null;
+        }
+
+        if (!long.TryParse(userIdValue, out var userId))
+        {
+            return null;
+        }
+
+        return userId;
+    }
+}

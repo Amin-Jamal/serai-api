@@ -1,6 +1,6 @@
-namespace Serai.AuthApi.Entities;
+namespace Serai.AuthApi.Dtos.Users;
 
-public sealed class AppUser
+public sealed class CurrentUserResponse
 {
     public long Id { get; set; }
 
@@ -9,8 +9,4 @@ public sealed class AppUser
     public string? FullName { get; set; }
 
     public bool IsPhoneVerified { get; set; }
-
-    public DateTime CreatedAtUtc { get; set; }
-
-    public DateTime UpdatedAtUtc { get; set; }
 }
