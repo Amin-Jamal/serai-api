@@ -57,6 +57,12 @@ public sealed class UsersController : ControllerBase
             return Unauthorized();
         }
 
+        var fullName = request.FullName?.Trim();
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            return BadRequest(new { success = false, message = "Full name is required." });
+        }
+
         var user = await _dbContext.Users
             .FirstOrDefaultAsync(x => x.Id == userId.Value, cancellationToken);
 
@@ -65,7 +71,7 @@ public sealed class UsersController : ControllerBase
             return NotFound();
         }
 
-        user.FullName = request.FullName.Trim();
+        user.FullName = fullName;
         user.UpdatedAtUtc = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -81,14 +87,14 @@ public sealed class UsersController : ControllerBase
 
     private long? GetCurrentUserId()
     {
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var value = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (string.IsNullOrWhiteSpace(userIdValue))
+        if (string.IsNullOrWhiteSpace(value))
         {
             return null;
         }
 
-        if (!long.TryParse(userIdValue, out var userId))
+        if (!long.TryParse(value, out var userId))
         {
             return null;
         }

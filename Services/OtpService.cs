@@ -158,6 +158,7 @@ public sealed class OtpService : IOtpService
             user = new AppUser
             {
                 PhoneNumber = normalizedPhone,
+                FullName = null,
                 IsPhoneVerified = true,
                 CreatedAtUtc = now,
                 UpdatedAtUtc = now
@@ -186,6 +187,7 @@ public sealed class OtpService : IOtpService
             {
                 Id = user.Id,
                 PhoneNumber = user.PhoneNumber,
+                FullName = user.FullName,
                 IsPhoneVerified = user.IsPhoneVerified
             }
         };
